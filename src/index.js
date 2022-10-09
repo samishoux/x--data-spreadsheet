@@ -68,6 +68,7 @@ class Spreadsheet {
   }
 
   loadData(data) {
+    console.log('inside load data')
     const ds = Array.isArray(data) ? data : [data];
     if (this.bottombar !== null) {
       this.bottombar.clear();
@@ -104,6 +105,7 @@ class Spreadsheet {
   }
 
   reRender() {
+    console.log('inside rerender')
     this.sheet.table.render();
     return this;
   }
