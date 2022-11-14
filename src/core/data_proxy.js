@@ -303,6 +303,8 @@ function getCellRowByY(y, scrollOffsety) {
   return { ri: ri - 1, top, height };
 }
 
+
+
 function getCellColByX(x, scrollOffsetx) {
   const { cols } = this;
   const fsw = this.freezeTotalWidth();
@@ -728,6 +730,9 @@ export default class DataProxy {
     } = this;
     let { ri, top, height } = getCellRowByY.call(this, y, scroll.y);
     let { ci, left, width } = getCellColByX.call(this, x, scroll.x);
+
+
+    
     if (ci === -1) {
       width = cols.totalWidth();
     }
@@ -744,6 +749,8 @@ export default class DataProxy {
         } = this.cellRect(ri, ci));
       }
     }
+    // console.log(ri, ci, left, top, width, height,)
+
     return {
       ri, ci, left, top, width, height,
     };

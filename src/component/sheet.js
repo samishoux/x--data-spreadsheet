@@ -80,8 +80,22 @@ function selectorSet(multiple, ri, ci, indexesUpdated = true, moving = false) {
   } else {
     // trigger click event
     selector.set(ri, ci, indexesUpdated);
-    this.trigger('cell-selected', cell, ri, ci);
+    const {
+      left, top, width, height,
+    } = this.data.getSelectedRect();
+    // console.log(left, top, width, height)
+
+    const cellMetaData = {
+      ri, 
+      ci,
+      left,
+      top,
+      width,
+      height
+    }
+    this.trigger('cell-selected', cell, ri, ci, cellMetaData);
   }
+
   contextMenu.setMode((ri === -1 || ci === -1) ? 'row-col' : 'range');
   toolbar.reset();
   table.render();
@@ -128,14 +142,33 @@ function selectorMove(multiple, direction) {
 
 // private methods
 function overlayerMousemove(evt) {
-  // console.log('x:', evt.offsetX, ', y:', evt.offsetY);
-  if (evt.buttons !== 0) return;
-  if (evt.target.className === `${cssPrefix}-resizer-hover`) return;
+  if (evt.buttons !== 0) {
+    return;
+  };
+  
+  if (evt.target.className === `${cssPrefix}-resizer-hover`) {
+    return;
+  };
   const { offsetX, offsetY } = evt;
   const {
     rowResizer, colResizer, tableEl, data,
   } = this;
   const { rows, cols } = data;
+
+  const cellHover = data.getCellRectByXY(evt.offsetX, evt.offsetY);
+  const cursorIsXPositiveInbound = evt.offsetX <= cellHover.left + cellHover.width;
+  const cursorIsXNegativeInboud = evt.offsetX >= cellHover.left;
+  const cursorIsYPositiveInbound = evt.offsetY <= cellHover.top + cellHover.height;
+  const cursorIsYNegativeInboud = evt.offsetY >= cellHover.height;
+  const cellHoverIsPositive = cellHover.ci >= 0 && cellHover.ri >= 0;
+  if (cursorIsXPositiveInbound && cursorIsXNegativeInboud && cursorIsYPositiveInbound && cursorIsYNegativeInboud && cellHoverIsPositive) {
+    const cell = data.getCell(cellHover.ri, cellHover.ci);
+    this.trigger('cell-hover', cell, cellHover, cellHover.ri, cellHover.ci);
+  } else {
+    this.trigger('out-of-bounds')
+  }
+
+
   if (offsetX > cols.indexWidth && offsetY > rows.height) {
     rowResizer.hide();
     colResizer.hide();

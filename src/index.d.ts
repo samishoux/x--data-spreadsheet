@@ -50,13 +50,15 @@ declare module 'x-data-spreadsheet' {
   export type CELL_SELECTED = 'cell-selected';
   export type CELLS_SELECTED = 'cells-selected';
   export type CELL_EDITED = 'cell-edited';
+  export type CELL_HOVER = 'cell-hover';
+  export type OUT_OF_BOUNDS = 'out-of-bounds'
 
   export type CellMerge = [number, number];
 
   export interface SpreadsheetEventHandler {
     (
       envt: CELL_SELECTED,
-      callback: (cell: Cell, rowIndex: number, colIndex: number) => void
+      callback: (cell: Cell, rowIndex: number, colIndex: number, cellMetaData: CellMetaData) => void
     ): void;
     (
       envt: CELLS_SELECTED,
@@ -68,6 +70,14 @@ declare module 'x-data-spreadsheet' {
     (
       evnt: CELL_EDITED,
       callback: (text: string, rowIndex: number, colIndex: number) => void
+    ): void;
+    (
+      evnt: CELL_HOVER,
+      callback: (cell: Cell, CellMetaData: CellMetaData, rowIndex: number, colIndex: number) => void
+    ): void;
+    (
+      evnt: OUT_OF_BOUNDS,
+      callback: () => void
     ): void;
   }
 
@@ -132,13 +142,26 @@ declare module 'x-data-spreadsheet' {
       left?: string[];
     };
   }
-  export interface Editor {}
-  export interface Element {}
+  export interface Editor { }
+  export interface Element { }
 
-  export interface Row {}
-  export interface Table {}
-  export interface Cell {}
-  export interface Sheet {}
+  export interface Row { }
+  export interface Table { }
+  export interface Cell {
+    text?: string,
+    merge?: [],
+    editable?: boolean,
+    style?: number
+  }
+  export interface Sheet { }
+  export interface CellMetaData {
+    ri: number;
+    ci: number;
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  }
 
   export default class Spreadsheet {
     constructor(container: string | HTMLElement, opts?: Options);
@@ -178,6 +201,10 @@ declare module 'x-data-spreadsheet' {
      * remove current sheet
      */
     deleteSheet(): void;
+    /**
+     * render sheet
+     */
+    reRender(): Spreadsheet;
 
     /**s
      * load data
@@ -202,7 +229,7 @@ declare module 'x-data-spreadsheet' {
   }
   global {
     interface Window {
-      x_spreadsheet(container: string | HTMLElement, opts?: Options): Spreadsheet; 
+      x_spreadsheet(container: string | HTMLElement, opts?: Options): Spreadsheet;
     }
   }
 }

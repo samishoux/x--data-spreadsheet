@@ -339,7 +339,7 @@ class Rows {
   setData(d) {
     if (d.len) {
       this.len = d.len;
-      delete d.len;
+      // delete d.len;
     }
     this._ = d;
   }
